@@ -1,13 +1,13 @@
-package com.example.PruebaSpring;
+package com.example.BackendSpring;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PruebaSpringApplication {
+public class BackendSpringApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PruebaSpringApplication.class, args);
+		SpringApplication.run(BackendSpringApplication.class, args);
 	}
 
 }
