@@ -4,7 +4,7 @@
 
 ## 🌟 Objetivo del Sprint
 
-Durante este sprint **NO se debe programar**. El propósito es:
+Durante este sprint **NO se debe programar en este sprint, esto seria del 4 sprint**. El propósito es:
 
 * Analizar las necesidades reales del microservicio.
 * Investigar opciones tecnológicas.
