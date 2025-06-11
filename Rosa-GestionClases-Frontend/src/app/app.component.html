@@ -1,0 +1,16 @@
+
+<!-- <! Header fijo arriba -->  
+<app-header
+  class="fixed top-0 inset-x-0 h-16 bg-white shadow z-50">
+</app-header>
+
+<!-- <!Sidebar fijo a la izquierda-->  
+<app-sidebar
+  class="fixed top-16 left-0 w-64 bottom-0 bg-gray-100 overflow-y-auto z-40">
+</app-sidebar>
+
+<!-- <!Contenido principal: desplazado para no tapar ni header ni sidebar -->  
+<main
+  class="pt-16 ml-64 h-screen bg-gradient-to-br from-slate-900 to-cyan-950">
+  <router-outlet></router-outlet>
+ </main>

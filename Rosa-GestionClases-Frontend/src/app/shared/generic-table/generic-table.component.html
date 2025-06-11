@@ -1,0 +1,107 @@
+<div
+  class="bg-slate-900/80 backdrop-blur-sm rounded-xl shadow-2xl p-6 max-w-4xl mx-auto space-y-6 border border-cyan-500/30">
+  <!-- Tabla -->
+  <table
+    class="w-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-slate-800/50 to-cyan-900/20 text-cyan-100 text-left">
+    <!-- Encabezado -->
+    <thead>
+      <tr class="bg-gradient-to-r from-cyan-700 to-emerald-700 border-b border-cyan-500/30">
+        <th *ngFor="let col of columns" class="px-6 py-4 font-bold text-sm uppercase tracking-wider 
+                   text-cyan-200 hover:text-cyan-100 transition-colors text-left">
+          {{ col.header }}
+        </th>
+        <th *ngIf="actions.length" class="px-6 py-4 font-bold text-sm uppercase text-cyan-200 text-left">
+          Acciones
+        </th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo -->
+    <tbody>
+      <tr *ngFor="let row of data"
+        class="group transition-all duration-200 hover:bg-slate-700/40 border-b border-cyan-900/20">
+        <td *ngFor="let col of columns" class="px-6 py-4 text-sm font-medium text-cyan-100/90 text-left align-middle">
+          {{ row[col.field] }}
+        </td>
+
+        <td *ngIf="actions.length" class="px-6 py-4 flex items-center space-x-2 align-middle">
+          <button *ngFor="let action of actions" (click)="onAction(action, row)" class="p-1.5 rounded-lg transition-all duration-200
+                         bg-slate-800/40 hover:bg-gradient-to-r hover:from-cyan-600 hover:to-emerald-600
+                         border border-cyan-600/30 hover:border-cyan-400/50
+                         shadow-sm hover:shadow-cyan-500/30">
+
+            <!-- Íconos -->
+            <ng-container [ngSwitch]="action">
+              <!-- Ícono para 'modificar' -->
+              <svg *ngSwitchCase="'modificar'" width="24" height="24" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <title></title>
+                  <g id="Complete">
+                    <g id="edit">
+                      <g>
+                        <path d="M20,16v4a2,2,0,0,1-2,2H4a2,2,0,0,1-2-2V6A2,2,0,0,1,4,4H8" fill="none" stroke="#0008ff"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <polygon fill="none" points="12.5 15.8 22 6.2 17.8 2 8.3 11.5 8 16 12.5 15.8" stroke="#0008ff"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polygon>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+
+              <!-- Ícono para 'eliminar' -->
+              <svg *ngSwitchCase="'eliminar'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path d="M10 11V17" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M14 11V17" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M4 7H20" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z" stroke="#ff0000"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#ff0000"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+              </svg>
+            </ng-container>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Paginación mejorada -->
+  <div class="flex justify-between items-center mt-6">
+    <span class="text-sm text-cyan-300/80">
+      Mostrando {{ data.length }} de {{ totalElements }} registros
+    </span>
+
+    <div class="flex items-center space-x-2">
+      <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 0" class="px-4 py-2 text-sm font-medium rounded-lg transition-all
+                     bg-slate-800/50 hover:bg-slate-700/60
+                     text-cyan-300 hover:text-cyan-200
+                     border border-cyan-600/30 hover:border-cyan-400/50
+                     disabled:opacity-50 disabled:cursor-not-allowed">
+        « Anterior
+      </button>
+
+      <span class="px-3 py-1.5 rounded-md bg-slate-800/40 text-cyan-300 text-sm">Página {{ currentPage + 1 }} de {{
+        totalPages }}</span>
+
+      <button (click)="changePage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1" class="px-4 py-2 text-sm font-medium rounded-lg transition-all
+                     bg-gradient-to-r from-cyan-600/80 to-emerald-600/80 
+                     hover:from-cyan-500/80 hover:to-emerald-500/80
+                     text-white hover:shadow-cyan-400/20
+                     disabled:opacity-50 disabled:cursor-not-allowed">
+        Siguiente »
+      </button>
+    </div>
+  </div>
+</div>
