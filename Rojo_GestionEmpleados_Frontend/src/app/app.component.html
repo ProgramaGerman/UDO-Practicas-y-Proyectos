@@ -1,0 +1,88 @@
+<div class="app-container">
+  <!-- Sidebar de navegación -->
+  <aside class="sidebar">
+  <div class="sidebar-header">
+    <!-- logo -->
+    <img src="assets/logo.png" alt="Logo ALESKYGYM" class="logo">
+    <h2>TEAM RED</h2>
+  </div>
+    <nav>
+      <ul>
+        <li class="menu-item">
+          <a href="#">Admin</a>
+        </li>
+        <li class="menu-item active">
+          <a href="#">Gestión de Empleados</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="main-content">
+    <header class="header">
+      <h1>Gestión de Empleados</h1>
+    </header>
+
+    <!-- Sección del listado de empleados -->
+    <section class="employee-list">
+      <div class="employee-list-header">
+        <h2>Listado de Empleados</h2>
+        <button class="btn-add" (click)="agregarEmpleado()">Agregar</button>    
+        </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre(s)</th>
+              <th>Cargo</th>
+              <th>Acceso</th>
+              <th>Horario</th>
+              <th>Especialidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Si no hay datos, se muestra un mensaje -->
+            <tr *ngIf="empleados.length === 0">
+              <td colspan="6" class="no-data">No hay empleados registrados</td>
+            </tr>
+            <!-- Cada fila para un empleado -->
+            <tr *ngFor="let empleado of empleados">
+              <td>{{ empleado.nombre }}</td>
+              <td>{{ empleado.cargo }}</td>
+              <td>{{ empleado.acceso }}</td>
+              <td>{{ empleado.horario }}</td>
+              <td>{{ empleado.especialidad }}</td>
+              <td>
+              <button (click)="abrirModalEditar(empleado)">Editar</button>
+              <button (click)="eliminarEmpleado(empleado)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    
+    <app-modal-empleado 
+    [visible]="visibleModal" 
+    (cerrarModal)="cerrarModal()">
+    </app-modal-empleado>
+    <!-- Modal de edición -->
+    <app-modal-empleado-editar 
+      [visible]="visibleModalEditar"
+      [empleado]="empleadoSeleccionado"
+      (cerrarModal)="cerrarModalEditar()"
+      (guardar)="guardarEmpleado($event)">
+    </app-modal-empleado-editar>
+    <!-- ... resto del HTML de la pantalla principal -->
+    <app-modal-confirmacion 
+      [visible]="visibleModalConfirmacion"
+      [mensaje]="mensajeConfirmacion"
+      (confirmar)="confirmarEliminacion()"
+      (cancelar)="cancelarEliminacion()">
+    </app-modal-confirmacion>
+  </main>
+</div>

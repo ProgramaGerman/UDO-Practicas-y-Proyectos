@@ -1,0 +1,207 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Contenedor principal con layout de dos columnas */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar: navegación lateral */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #323232, #1a1a1a);
+  color: #ffffff;
+  padding: 1.5rem;
+}
+
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sidebar-header h2 {
+  font-size: 1.8rem;
+  color: #f4f4f4;
+  letter-spacing: 1px;
+}
+
+.sidebar nav ul {
+  list-style: none;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 1rem;
+}
+
+.sidebar nav ul li a {
+  color: #dcdcdc;
+  text-decoration: none;
+  display: block;
+  padding: 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar nav ul li.active a {
+  background-color: #505050;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* Área del contenido principal */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f3f3f3;
+}
+
+/* Estilos para el encabezado principal */
+.header {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Sección de listado de empleados */
+.employee-list {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employee-list h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #555;
+}
+
+/* Contenedor del header (ya estaba definido pero se refuerza) */
+.employee-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin-bottom: 1rem;
+}
+
+/* Específico para el <h2> dentro del header */
+.employee-list-header > h2 {
+  margin: 0 !important;    
+  flex: 1 1 auto;           
+  min-width: 0;            
+  white-space: nowrap;    
+  overflow: hidden;       
+  text-overflow: ellipsis; 
+  max-width: 70%;         
+}
+
+/* Estilos para el botón "Agregar" */
+.btn-add {
+  white-space: nowrap;     
+  padding: 0.5rem 1rem;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add:hover {
+  background-color: #43a047;
+}
+
+
+
+/* Contenedor para la tabla y responsive design */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+/* Estilos para la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+thead {
+  background-color: #009879;
+}
+
+thead th {
+  padding: 0.75rem;
+  color: #ffffff;
+  text-align: left;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+td {
+  padding: 0.75rem;
+  color: #333;
+}
+
+/* Estilo para la fila sin datos */
+.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+/* Botones de acción */
+button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+button:first-of-type {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+button:last-of-type {
+  background-color: #f44336;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+/* IMAGEN */
+.sidebar-header .logo {
+  display: block;
+  margin: 0 auto 1rem auto;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+}

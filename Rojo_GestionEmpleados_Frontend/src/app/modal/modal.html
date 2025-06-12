@@ -1,0 +1,76 @@
+<div class="modal-background" *ngIf="visible">
+  <div class="modal-content">
+    <!-- Encabezado -->
+    <div class="modal-header">
+      Registrar Nuevo Empleado
+    </div>
+
+    <!-- Cuerpo del modal (desplazable) -->
+    <div class="modal-body">
+      <form>
+        <!-- Nombre y Apellido -->
+        <div class="form-group">
+          <label for="nombreApellido">Nombre y Apellido:</label>
+          <input id="nombreApellido" type="text" placeholder="Ingrese nombre y apellido">
+        </div>
+        <!-- Cédula -->
+        <div class="form-group">
+          <label for="cedula">Cédula:</label>
+          <input id="cedula" type="text" placeholder="Ingrese cédula">
+        </div>
+        <!-- Número de Teléfono -->
+        <div class="form-group">
+          <label for="telefono">Número de Teléfono:</label>
+          <input id="telefono" type="tel" placeholder="Ingrese número de teléfono">
+        </div>
+        <!-- Dirección -->
+        <div class="form-group">
+          <label for="direccion">Dirección:</label>
+          <input id="direccion" type="text" placeholder="Ingrese dirección">
+        </div>
+        <!-- Correo -->
+        <div class="form-group">
+          <label for="correo">Correo:</label>
+          <input id="correo" type="email" placeholder="Ingrese correo electrónico">
+        </div>
+        <!-- RIF -->
+        <div class="form-group">
+          <label for="rif">RIF:</label>
+          <input id="rif" type="text" placeholder="Ingrese RIF">
+        </div>
+        <!-- Cargo -->
+        <div class="form-group">
+          <label for="cargo">Cargo:</label>
+          <select id="cargo">
+            <option value="" disabled selected>Seleccione cargo</option>
+            <option value="Entrenador">Entrenador</option>
+            <option value="Administración">Administración</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Recursos Humanos">Recursos Humanos</option>
+          </select>
+        </div>
+        <!-- Especialidad -->
+        <div class="form-group">
+          <label for="especialidad">Especialidad:</label>
+          <input id="especialidad" type="text" placeholder="Ingrese especialidad">
+        </div>
+        <!-- Fecha de Inicio -->
+        <div class="form-group">
+          <label for="fechaInicio">Fecha de Inicio:</label>
+          <input id="fechaInicio" type="date">
+        </div>
+        <!-- Fecha de Finalización -->
+        <div class="form-group">
+          <label for="fechaFinalizacion">Fecha de Finalización:</label>
+          <input id="fechaFinalizacion" type="date">
+        </div>
+      </form>
+    </div>
+
+    <!-- Pie con botones fijos -->
+    <div class="modal-buttons">
+      <button type="button" class="btn-save">Guardar</button>
+      <button type="button" class="btn-close" (click)="cerrar()">Cerrar</button>
+    </div>
+  </div>
+</div>

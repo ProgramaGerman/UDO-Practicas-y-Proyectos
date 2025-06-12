@@ -1,0 +1,14 @@
+<div class="modal-background" *ngIf="visible">
+  <div class="modal-content">
+    <div class="modal-header">
+      Confirmar Eliminación
+    </div>
+    <div class="modal-body">
+      <p>{{ mensaje }}</p>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-confirm" (click)="confirmarEliminacion()">Eliminar</button>
+      <button class="btn-cancel" (click)="cancelarEliminacion()">Cancelar</button>
+    </div>
+  </div>
+</div>
