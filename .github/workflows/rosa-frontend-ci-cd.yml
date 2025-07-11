@@ -3,14 +3,14 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - ROSA-Frontend
+      - Rosa-Frontend
 
 jobs:
   build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ROSA-GestionClases-Frontend
+        working-directory: Rosa-GestionClases-Frontend
 
     steps:
       - name: Checkout code
@@ -31,5 +31,5 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           firebaseServiceAccount: ${{ secrets.ROSA }}
-          projectId: ROSA-gestion-de-clases
+          projectId: rosa-gestion-de-clases
           channelId: live
