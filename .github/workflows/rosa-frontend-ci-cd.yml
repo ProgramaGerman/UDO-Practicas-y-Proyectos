@@ -2,9 +2,9 @@ name: CI Pipeline - Ubuntu 20.04
 
 on:
   push:
-    branches: [ rosa-frontend ]
+    branches: [ Rosa-Frontend ]
   pull_request:
-    branches: [ rosa-frontend ]
+    branches: [ Rosa-Frontend ]
 
 jobs:
   installation:
