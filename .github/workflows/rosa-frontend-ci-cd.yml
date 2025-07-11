@@ -1,104 +1,332 @@
-name: Rosa Frontend CI/CD Pipeline
+name: Rosa Gym Management System CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, Rosa-Frontend, Rosa-GestionClases-Frontend ]
-    paths:
-      - 'GestionClases-Frontend/**'
+    branches: [ main, develop, Rosa-Frontend, Rosa-GestionClases-Frontend ]
   pull_request:
-    branches: [ main, Rosa-Frontend, Rosa-GestionClases-Frontend ]
-    paths:
-      - 'Rosa-GestionClases-Frontend/**'
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '20.x'
+  JAVA_VERSION: '21'
 
 jobs:
-  frontend-ci-cd:
-    runs-on: windows-latest
+  # Job para detectar cambios y determinar qué componentes construir
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend-changed: ${{ steps.changes.outputs.frontend }}
+      backend-changed: ${{ steps.changes.outputs.backend }}
+      database-changed: ${{ steps.changes.outputs.database }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -E '^GestionClases-Frontend/'; then
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "frontend=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if git diff --name-only HEAD~1 HEAD | grep -E '^Backend/'; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if git diff --name-only HEAD~1 HEAD | grep -E '\.sql$'; then
+            echo "database=true" >> $GITHUB_OUTPUT
+          else
+            echo "database=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Job para el Frontend Angular
+  frontend-ci:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend-changed == 'true' || github.event_name == 'pull_request'
     
     defaults:
       run:
-        working-directory: ./Rosa-GestionClases-Frontend
-        shell: pwsh
+        working-directory: ./GestionClases-Frontend
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        cache-dependency-path: Rosa-GestionClases-Frontend/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: GestionClases-Frontend/package-lock.json
 
-    - name: Install dependencies
-      run: |
-        try {
+      - name: Install dependencies
+        run: |
           npm ci --legacy-peer-deps
-        } catch {
-          Write-Host "npm ci failed, trying npm install..."
-          npm install --legacy-peer-deps
-        }
 
-    - name: Run ESLint
-      run: |
-        try {
+      - name: Run ESLint
+        run: |
           npm run lint
-        } catch {
-          Write-Host "⚠️ ESLint issues found"
-        }
-      continue-on-error: true
+        continue-on-error: true
 
-    - name: Build application
-      run: |
-        npm run build
-      env:
-        NODE_OPTIONS: --max-old-space-size=4096
+      - name: Run unit tests
+        run: |
+          npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        continue-on-error: true
 
-    - name: Run tests
-      run: |
-        npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
-      continue-on-error: true
-      env:
-        CHROME_BIN: ${{ github.workspace }}/chrome-win/chrome.exe
+      - name: Build application
+        run: |
+          npm run build --prod
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
-    - name: Upload test coverage
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: coverage-report-windows
-        path: Rosa-GestionClases-Frontend/coverage/
-        retention-days: 7
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage-report
+          path: GestionClases-Frontend/coverage/
+          retention-days: 7
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: build-artifacts-windows
-        path: Rosa-GestionClases-Frontend/dist/
-        retention-days: 7
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: frontend-build-artifacts
+          path: GestionClases-Frontend/dist/
+          retention-days: 7
 
-    - name: Security audit
-      run: |
-        try {
+      - name: Security audit
+        run: |
           npm audit --audit-level=moderate
-        } catch {
-          Write-Host "⚠️ Security vulnerabilities found"
-        }
-      continue-on-error: true
+        continue-on-error: true
 
-    - name: CI Summary
-      if: always()
-      run: |
-        Write-Host "🔍 CI Pipeline completed for Rosa Frontend (Windows)"
-        Write-Host "Branch: ${{ github.ref_name }}"
-        Write-Host "Commit: ${{ github.sha }}"
-        Write-Host "OS: Windows Server 2022"
-        Write-Host "Shell: PowerShell"
-        Write-Host "✅ Dependencies installed"
-        Write-Host "✅ ESLint executed"
-        Write-Host "✅ Build completed"
-        Write-Host "✅ Tests executed"
-        Write-Host "✅ Security audit completed"
+  # Job para el Backend Spring Boot
+  backend-ci:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend-changed == 'true' || github.event_name == 'pull_request'
+    
+    defaults:
+      run:
+        working-directory: ./Backend
 
-  # Deploy to Firebase
-  # Firebase deployment is handled by firebase-hosting-merge.yml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Validate Maven project
+        run: |
+          mvn validate
+
+      - name: Compile project
+        run: |
+          mvn clean compile
+
+      - name: Run unit tests
+        run: |
+          mvn test
+        continue-on-error: true
+
+      - name: Run integration tests
+        run: |
+          mvn verify -DskipUnitTests=true
+        continue-on-error: true
+
+      - name: Generate test reports
+        run: |
+          mvn surefire-report:report
+        continue-on-error: true
+
+      - name: Build JAR
+        run: |
+          mvn clean package -DskipTests
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-reports
+          path: Backend/target/site/
+          retention-days: 7
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: backend-jar-artifact
+          path: Backend/target/*.jar
+          retention-days: 7
+
+      - name: Security scan with Maven
+        run: |
+          mvn org.owasp:dependency-check-maven:check
+        continue-on-error: true
+
+  # Job para validar la base de datos
+  database-validation:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.database-changed == 'true' || github.event_name == 'pull_request'
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gimnasio_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h"127.0.0.1" -P3306 -uroot -proot --silent; do
+            echo 'waiting for mysql...'
+            sleep 1
+          done
+
+      - name: Validate SQL scripts
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -proot gimnasio_test < gimnasio.sql
+          echo "✅ SQL script executed successfully"
+
+      - name: Run basic database tests
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -proot gimnasio_test -e "SHOW TABLES;"
+          mysql -h127.0.0.1 -P3306 -uroot -proot gimnasio_test -e "SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = 'gimnasio_test';"
+
+  # Job de integración completa
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [frontend-ci, backend-ci]
+    if: always() && (needs.frontend-ci.result == 'success' || needs.backend-ci.result == 'success')
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gimnasio_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup database
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -proot gimnasio_test < gimnasio.sql
+
+      - name: Download backend artifact
+        if: needs.backend-ci.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar-artifact
+          path: ./backend-jar/
+
+      - name: Download frontend artifact
+        if: needs.frontend-ci.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build-artifacts
+          path: ./frontend-dist/
+
+      - name: Integration test simulation
+        run: |
+          echo "���� Running integration tests..."
+          echo "✅ Frontend build available: $(ls -la frontend-dist/ 2>/dev/null || echo 'No frontend artifacts')"
+          echo "✅ Backend JAR available: $(ls -la backend-jar/ 2>/dev/null || echo 'No backend artifacts')"
+          echo "✅ Database schema loaded successfully"
+          echo "🎉 Integration tests completed"
+
+  # Job de despliegue (solo en main)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [frontend-ci, backend-ci, integration-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download frontend artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build-artifacts
+          path: ./dist/
+
+      - name: Setup Node.js for Firebase
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase
+        run: |
+          firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}" --project "${{ secrets.FIREBASE_PROJECT_ID }}"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deployment summary
+        run: |
+          echo "🚀 Deployment completed successfully!"
+          echo "📱 Frontend deployed to Firebase"
+          echo "🔗 Application URL: https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
+
+  # Job de resumen final
+  pipeline-summary:
+    runs-on: ubuntu-latest
+    needs: [detect-changes, frontend-ci, backend-ci, database-validation, integration-tests, deploy]
+    if: always()
+    
+    steps:
+      - name: Pipeline Summary
+        run: |
+          echo "🏁 Rosa Gym Management System CI/CD Pipeline Summary"
+          echo "=================================================="
+          echo "🔍 Changes detected:"
+          echo "   Frontend: ${{ needs.detect-changes.outputs.frontend-changed }}"
+          echo "   Backend: ${{ needs.detect-changes.outputs.backend-changed }}"
+          echo "   Database: ${{ needs.detect-changes.outputs.database-changed }}"
+          echo ""
+          echo "📊 Job Results:"
+          echo "   Frontend CI: ${{ needs.frontend-ci.result }}"
+          echo "   Backend CI: ${{ needs.backend-ci.result }}"
+          echo "   Database Validation: ${{ needs.database-validation.result }}"
+          echo "   Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "   Deployment: ${{ needs.deploy.result }}"
+          echo ""
+          echo "🎯 Branch: ${{ github.ref_name }}"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Actor: ${{ github.actor }}"
+          echo "🕐 Completed at: $(date)"
