@@ -16,10 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      
+      - name: Instalar dependencias
+        run: |
           cd naranja-smarttrainer-frontend
           npm ci
+
+      - name: Ejecutar tests unitarios
+        run: |
+          cd naranja-smarttrainer-frontend
+          npm run test
+
+      - name: Build 
+        run: |
+          cd naranja-smarttrainer-frontend
           npm run build
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
