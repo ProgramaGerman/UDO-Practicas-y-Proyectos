@@ -1,28 +1,25 @@
 name: CI Pipeline - Ubuntu 20.04
 
-# Definir cuándo se ejecuta el workflow
 on:
   push:
     branches: [ rosa-frontend ]
   pull_request:
     branches: [ rosa-frontend ]
 
-# Definir los jobs del pipeline
 jobs:
-  # Job 1: Instalación de dependencias
   installation:
     name: "Instalación de Dependencias"
     runs-on: ubuntu-20.04
-    
+
     steps:
     - name: Checkout del código
       uses: actions/checkout@v3
-    
+
     - name: Actualizar sistema
       run: |
         sudo apt-get update
         sudo apt-get upgrade -y
-    
+
     - name: Instalar dependencias del sistema
       run: |
         sudo apt-get install -y \
@@ -35,7 +32,7 @@ jobs:
           nodejs \
           npm \
           nginx
-    
+
     - name: Verificar instalaciones
       run: |
         echo "Verificando instalaciones..."
@@ -44,38 +41,37 @@ jobs:
         npm --version
         nginx -v
         echo "✅ Todas las dependencias instaladas correctamente"
-    
+
     - name: Instalar dependencias de Python
       run: |
         pip3 install --upgrade pip
         pip3 install pytest flask requests
-    
+
     - name: Crear archivo de estado de instalación
       run: |
         echo "installation_completed=true" > installation_status.txt
         echo "timestamp=$(date)" >> installation_status.txt
-    
+
     - name: Subir artefactos de instalación
       uses: actions/upload-artifact@v3
       with:
         name: installation-artifacts
         path: installation_status.txt
 
-  # Job 2: Ejecutar tests de prueba
   testing:
     name: "Ejecutar Tests de Prueba"
     runs-on: ubuntu-20.04
     needs: installation
-    
+
     steps:
     - name: Checkout del código
       uses: actions/checkout@v3
-    
+
     - name: Descargar artefactos de instalación
       uses: actions/download-artifact@v3
       with:
         name: installation-artifacts
-    
+
     - name: Verificar estado de instalación
       run: |
         if [ -f installation_status.txt ]; then
@@ -85,48 +81,40 @@ jobs:
           echo "❌ Error: No se encontró el archivo de estado"
           exit 1
         fi
-    
+
     - name: Reinstalar dependencias necesarias para tests
       run: |
         sudo apt-get update
         sudo apt-get install -y python3 python3-pip nodejs npm
         pip3 install --upgrade pip pytest flask requests
-    
+
     - name: Crear tests de prueba
       run: |
-        # Crear directorio de tests
         mkdir -p tests
-        
-        # Test de Python
         cat > tests/test_python.py << 'EOF'
 import sys
 import subprocess
 
 def test_python_version():
-    """Test que Python 3 está instalado correctamente"""
     assert sys.version_info >= (3, 6), "Python 3.6+ requerido"
-    print("✅ Python version test passed")
+    print("\u2705 Python version test passed")
 
 def test_pip_installation():
-    """Test que pip está funcionando"""
     result = subprocess.run(['pip3', '--version'], capture_output=True, text=True)
     assert result.returncode == 0, "pip3 no está funcionando correctamente"
-    print("✅ Pip installation test passed")
+    print("\u2705 Pip installation test passed")
 
 def test_requests_import():
-    """Test que requests se puede importar"""
     try:
         import requests
-        print("✅ Requests import test passed")
+        print("\u2705 Requests import test passed")
     except ImportError:
         assert False, "No se puede importar requests"
 EOF
-        
-        # Test de Node.js
+
         cat > tests/test_node.js << 'EOF'
 const { exec } = require('child_process');
 
-// Test que Node.js está instalado
 console.log('Node.js version:', process.version);
 if (process.version < 'v12.0.0') {
     console.error('❌ Node.js version muy antigua');
@@ -134,8 +122,7 @@ if (process.version < 'v12.0.0') {
 }
 console.log('✅ Node.js version test passed');
 
-// Test que npm está funcionando
-exec('npm --version', (error, stdout, stderr) => {
+exec('npm --version', (error, stdout) => {
     if (error) {
         console.error('❌ npm test failed:', error);
         process.exit(1);
@@ -143,63 +130,54 @@ exec('npm --version', (error, stdout, stderr) => {
     console.log('✅ npm test passed, version:', stdout.trim());
 });
 EOF
-        
-        # Test de servicios del sistema
+
         cat > tests/test_system.sh << 'EOF'
 #!/bin/bash
 set -e
 
 echo "🔍 Ejecutando tests del sistema..."
 
-# Test de curl
-echo "Testing curl..."
 curl --version > /dev/null
 echo "✅ curl test passed"
 
-# Test de wget
-echo "Testing wget..."
 wget --version > /dev/null
 echo "✅ wget test passed"
 
-# Test de git
-echo "Testing git..."
 git --version > /dev/null
 echo "✅ git test passed"
 
-# Test de nginx
-echo "Testing nginx..."
 nginx -v > /dev/null 2>&1
 echo "✅ nginx test passed"
 
 echo "🎉 Todos los tests del sistema pasaron correctamente"
 EOF
-        
+
         chmod +x tests/test_system.sh
-    
+
     - name: Ejecutar tests de Python
       run: |
-        echo "🧪 Ejecutando tests de Python..."
+        echo "🧚 Ejecutando tests de Python..."
         cd tests
         python3 -m pytest test_python.py -v
-    
+
     - name: Ejecutar tests de Node.js
       run: |
-        echo "🧪 Ejecutando tests de Node.js..."
+        echo "🧚 Ejecutando tests de Node.js..."
         cd tests
         timeout 10s node test_node.js
-    
+
     - name: Ejecutar tests del sistema
       run: |
-        echo "🧪 Ejecutando tests del sistema..."
+        echo "🤝 Ejecutando tests del sistema..."
         cd tests
         ./test_system.sh
-    
+
     - name: Test de conectividad
       run: |
         echo "🌐 Testing conectividad..."
         curl -s https://httpbin.org/ip > /dev/null
         echo "✅ Conectividad test passed"
-    
+
     - name: Crear reporte de tests
       run: |
         echo "# 📊 Reporte de Tests" > test_report.md
@@ -207,34 +185,31 @@ EOF
         echo "- ✅ Node.js tests: PASSED" >> test_report.md
         echo "- ✅ System tests: PASSED" >> test_report.md
         echo "- ✅ Connectivity tests: PASSED" >> test_report.md
-        echo "- 📅 Fecha: $(date)" >> test_report.md
+        echo "- 🗓️ Fecha: $(date)" >> test_report.md
         cat test_report.md
-    
+
     - name: Subir reporte de tests
       uses: actions/upload-artifact@v3
       with:
         name: test-report
         path: test_report.md
 
-  # Job 3: Verificación final y mensaje de éxito
   verification:
     name: "Verificación Final"
     runs-on: ubuntu-20.04
     needs: [installation, testing]
-    
+
     steps:
     - name: Descargar artefactos
       uses: actions/download-artifact@v3
       with:
         name: test-report
-    
+
     - name: Verificar que todos los tests pasaron
       run: |
         if [ -f test_report.md ]; then
           echo "📋 Reporte de tests encontrado:"
           cat test_report.md
-          
-          # Verificar que no hay fallos
           if grep -q "FAILED" test_report.md; then
             echo "❌ Se encontraron tests fallidos"
             exit 1
@@ -245,30 +220,25 @@ EOF
           echo "❌ No se encontró el reporte de tests"
           exit 1
         fi
-    
+
     - name: Mensaje de éxito final
       run: |
-        echo "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉"
-        echo "🎊 ¡PIPELINE COMPLETADO CON ÉXITO! 🎊"
-        echo "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉"
-        echo ""
-        echo "✅ Instalación: COMPLETADA"
-        echo "✅ Tests: TODOS PASARON"
-        echo "✅ Verificación: EXITOSA"
-        echo ""
-        echo "🚀 El sistema está listo para usar en Ubuntu 20.04"
-        echo "📊 Fecha de completación: $(date)"
-        echo "🔧 Entorno: Ubuntu 20.04"
-        echo "🌟 Estado: PERFECTO"
-        echo ""
-        echo "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉"
-    
+        echo "🎉🎉🎉 ¡PIPELINE COMPLETADO CON ÉXITO! 🎉🎉🎉"
+        echo "
+        ✅ Instalación: COMPLETADA
+        ✅ Tests: TODOS PASARON
+        ✅ Verificación: EXITOSA
+        🚀 El sistema está listo para usar en Ubuntu 20.04
+        📊 Fecha de completación: $(date)
+        🔧 Entorno: Ubuntu 20.04
+        ✨ Estado: PERFECTO"
+
     - name: Crear badge de estado
       run: |
         echo "![Build Status](https://img.shields.io/badge/build-passing-brightgreen)" > build_badge.md
         echo "![Tests](https://img.shields.io/badge/tests-passing-brightgreen)" >> build_badge.md
         echo "![Platform](https://img.shields.io/badge/platform-ubuntu%2020.04-blue)" >> build_badge.md
-        
+
     - name: Mostrar información del entorno
       run: |
         echo "🔍 Información del entorno:"
@@ -279,6 +249,8 @@ EOF
         echo "- Memory: $(free -h | grep '^Mem:' | awk '{print $2}')"
         echo "- Disk: $(df -h / | tail -1 | awk '{print $4}') available"
 
-    # Ejemplo de uso del secreto ROSA
-    - name: Mostrar valor del secreto ROSA (solo para prueba)
-      run: echo "El secreto ROSA es ${{ secrets.ROSA }}"
+    - name: Subir badge
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-badge
+        path: build_badge.md
