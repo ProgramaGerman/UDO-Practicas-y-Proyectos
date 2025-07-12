@@ -44,9 +44,11 @@ firebase init hosting
 
 #### Required Secrets:
 ```
-FIREBASE_SERVICE_ACCOUNT_ALESKY_GYM_ROSA
+FIREBASE_SERVICE_ACCOUNT
 ```
 **Valor**: El contenido completo del archivo JSON de la service account
+
+**IMPORTANTE**: Usa exactamente el nombre `FIREBASE_SERVICE_ACCOUNT` (sin el sufijo del proyecto)
 
 ### 4. Verificar Configuración
 
@@ -70,7 +72,7 @@ git push
 - [x] Workflows de GitHub Actions creados
 - [x] Build local verificado
 - [ ] Service Account de Firebase creada
-- [ ] Secret FIREBASE_SERVICE_ACCOUNT_ALESKY_GYM_ROSA configurado
+- [ ] Secret FIREBASE_SERVICE_ACCOUNT configurado
 - [ ] Deployment automático funcionando
 
 ## 🎯 Próximos Pasos
