@@ -1,0 +1,137 @@
+name: Firebase CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20.x'
+  FIREBASE_PROJECT_ID: 'alesky-gym-rosa'
+
+jobs:
+  # Job para linting y testing
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    defaults:
+      run:
+        working-directory: ./GestionClases-Frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: GestionClases-Frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run unit tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        continue-on-error: true
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: GestionClases-Frontend/coverage/
+          retention-days: 7
+
+  # Job para build y deploy a Firebase
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: always() && (needs.test.result == 'success' || github.event_name == 'push')
+    
+    defaults:
+      run:
+        working-directory: ./GestionClases-Frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: GestionClases-Frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: GestionClases-Frontend/dist/
+          retention-days: 7
+
+      # Deploy to Firebase Preview Channel (PR)
+      - name: Deploy to Firebase Preview
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ALESKY_GYM_ROSA }}
+          projectId: ${{ env.FIREBASE_PROJECT_ID }}
+
+      # Deploy to Firebase Live Channel (main/develop)
+      - name: Deploy to Firebase Live
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ALESKY_GYM_ROSA }}
+          channelId: live
+          projectId: ${{ env.FIREBASE_PROJECT_ID }}
+
+  # Job de notificación de resultados
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy]
+    if: always()
+    
+    steps:
+      - name: Pipeline Summary
+        run: |
+          echo "🏁 Firebase CI/CD Pipeline Summary"
+          echo "=================================="
+          echo "🎯 Branch: ${{ github.ref_name }}"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Actor: ${{ github.actor }}"
+          echo "🏗️ Build & Deploy: ${{ needs.build-and-deploy.result }}"
+          echo "🌐 Project: ${{ env.FIREBASE_PROJECT_ID }}"
+          
+          if [[ "${{ needs.build-and-deploy.result }}" == "success" ]]; then
+            if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/develop") ]]; then
+              echo "🚀 Live deployment successful!"
+              echo "🔗 Application URL: https://${{ env.FIREBASE_PROJECT_ID }}.web.app"
+            elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              echo "🔍 Preview deployment successful!"
+              echo "💡 Check the PR for the preview URL"
+            fi
+          else
+            echo "❌ Deployment failed!"
+          fi
+          
+          echo "🕐 Completed at: $(date)"

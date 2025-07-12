@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "Rosa-GestionClases-Frontend/dist/angular/browser",
+    "public": "GestionClases-Frontend/dist/angular/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
