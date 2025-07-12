@@ -11,7 +11,12 @@ Este archivo es para probar el pipeline CI/CD de Firebase.
 - ✅ Automatic testing
 
 ## Estado del pipeline:
-✅ **COMPLETADO** - Build local exitoso
+✅ **CORREGIDO Y ACTUALIZADO** - Error de secret resuelto
+
+## 🔧 Corrección Aplicada (2025-07-12T03:42:58Z):
+✅ **Problema resuelto**: Nombre incorrecto del secret `FIREBASE_SERVICE_ACCOUNT_ALESKY_GYM_ROSA`
+✅ **Solución aplicada**: Cambiado a `FIREBASE_SERVICE_ACCOUNT` en todos los workflows
+✅ **Archivos actualizados**: 3 workflows + documentación
 
 ## Resultados de GitHub Actions (2025-07-12T03:33:42Z):
 
