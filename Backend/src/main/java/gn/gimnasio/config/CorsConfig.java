@@ -19,8 +19,8 @@ public class CorsConfig {
         // Permitir estos orígenes
         corsConfiguration.setAllowedOrigins(Arrays.asList(
             "https://alesky-gym-rosa.web.app",
-"https://alesky-gym-rosa.web.app",
-            "http://127.0.0.1:4200"
+            "http://127.0.0.1:4200",
+            "http://localhost:4200"
         ));
         
         // Permitir estos métodos HTTP
