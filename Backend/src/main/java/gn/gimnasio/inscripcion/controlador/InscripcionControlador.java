@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/gimnasio-app/inscripcion")
-@CrossOrigin("http://localhost:4200")
 public class InscripcionControlador {
 
     @Autowired

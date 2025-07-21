@@ -16,7 +16,7 @@ import gn.gimnasio.lincenciaInstructor.dto.LicenciaDTO;
 
 @RestController
 @RequestMapping("/gimnasio-app/instructores/{id}/licencias")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("https://alesky-gym-rosa.web.app")
 
 public class LicenciaControlador {
 

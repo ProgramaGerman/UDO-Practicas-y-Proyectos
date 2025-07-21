@@ -20,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/gimnasio-app/clases")
-@CrossOrigin("http://localhost:4200")
 public class ClaseControlador {
     private static final Logger logger = LoggerFactory.getLogger(ClaseControlador.class);
 

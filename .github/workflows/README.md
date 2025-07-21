@@ -45,7 +45,6 @@ Este pipeline automatiza el proceso de integración continua y despliegue contin
 7. 🚀 Despliegue a producción en Vercel
 8. 📢 Notificación de despliegue con URL
 9. 💬 Comentario en PR con URL de preview
-
 ## 📋 Requisitos Previos
 
 Para que el pipeline funcione correctamente, asegúrate de que:
@@ -117,7 +116,6 @@ cat .vercel/project.json
 
 # 5. Crear token en https://vercel.com/account/tokens
 ```
-
 ### Modificar el Pipeline
 - **Cambiar versiones de Node.js**: Modifica la matriz en `strategy.matrix.node-version`
 - **Agregar más pasos**: Inserta nuevos steps en el job correspondiente

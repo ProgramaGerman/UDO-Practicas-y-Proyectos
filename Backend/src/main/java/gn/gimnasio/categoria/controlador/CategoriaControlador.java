@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/gimnasio-app/categorias")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("https://alesky-gym-rosa.web.app")
 public class CategoriaControlador {
 
     @Autowired
