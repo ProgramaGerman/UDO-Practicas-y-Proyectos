@@ -29,6 +29,22 @@ Este pipeline automatiza el proceso de integración continua y despliegue contin
 9. 🔒 Auditoría de seguridad (npm audit)
 10. 📋 Resumen del pipeline
 
+#### 2. **deploy-vercel**
+- **Dependencia**: Requiere éxito del job `frontend-ci-cd`
+- **Condición**: Solo en ramas `main` o `Rosa-Frontend`
+- **Node.js**: 20.x
+- **Plataforma**: Vercel
+
+**Pasos:**
+1. ✅ Checkout del repositorio
+2. ⚙️ Setup de Node.js
+3. 📦 Instalación de Vercel CLI
+4. 🧹 Limpieza e instalación de dependencias
+5. 🔄 Pull de configuración de Vercel
+6. 🏗️ Build con Vercel
+7. 🚀 Despliegue a producción en Vercel
+8. 📢 Notificación de despliegue con URL
+9. 💬 Comentario en PR con URL de preview
 ## 📋 Requisitos Previos
 
 Para que el pipeline funcione correctamente, asegúrate de que:
@@ -79,6 +95,27 @@ Para configurar secretos sensibles:
 1. Ve a Settings → Secrets and variables → Actions
 2. Agrega los secretos necesarios:
 
+#### Secretos requeridos para Vercel:
+- `VERCEL_TOKEN`: Token de acceso a Vercel
+- `VERCEL_ORG_ID`: ID de tu organización en Vercel
+- `VERCEL_PROJECT_ID`: ID del proyecto en Vercel
+
+#### Cómo obtener los secretos:
+```bash
+# 1. Instalar Vercel CLI
+npm install -g vercel
+
+# 2. Hacer login
+vercel login
+
+# 3. Inicializar proyecto
+vercel
+
+# 4. Obtener IDs del archivo .vercel/project.json
+cat .vercel/project.json
+
+# 5. Crear token en https://vercel.com/account/tokens
+```
 ### Modificar el Pipeline
 - **Cambiar versiones de Node.js**: Modifica la matriz en `strategy.matrix.node-version`
 - **Agregar más pasos**: Inserta nuevos steps en el job correspondiente
